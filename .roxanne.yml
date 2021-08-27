@@ -1,5 +1,6 @@
 version: 1.0
-test:
-  image: golang:1
-  scripts:
-  - ./scripts/test.sh
+stages:
+  test:
+    image: golang:1
+    scripts:
+    - ./scripts/test.sh
