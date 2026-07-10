@@ -1,12 +1,4 @@
-COMMIT_HASH ?= $(shell git rev-parse --short HEAD 2>/dev/null)
-GITVERSION  ?= $(shell git describe --tags --exact-match 2>/dev/null || git describe --tags 2>/dev/null || echo "v0.0.0-$(COMMIT_HASH)")
-
 GO          ?= go
-GOOS        ?= $(shell $(GO) env GOOS)
-GOARCH      ?= $(shell $(GO) env GOARCH)
-PACKAGENAME := $(shell go list -m -f '{{.Path}}')
-GOLDFLAGS   ?= -s -w -X $(PACKAGENAME)/conf.Executable=$(EXECUTABLE) -X $(PACKAGENAME)/conf.GitVersion=$(GITVERSION)
-GOBUILD     ?= CGO_ENABLED=0 $(GO) build -ldflags="$(GOLDFLAGS)"
 GO_FILES    := $(shell find . -type f -name '*.go')
 
 .PHONY: all
@@ -24,16 +16,26 @@ verify:   ## Verify 'vendor' dependencies
 	@ $(MAKE) --no-print-directory log-$@
 	$(GO) mod verify
 
-.PHONY: lint ## Lint the project
-lint:
+.PHONY: fmt ## Format the project
+fmt:
 	@$(MAKE) --no-print-directory log-$@
-	@golint
+	@golangci-lint fmt --diff
+
+.PHONY: lint ## Lint the project
+lint: fmt
+	@$(MAKE) --no-print-directory log-$@
+	@golangci-lint run
 
 .PHONY: test
 test: coverage.out ## Execute tests
 coverage.out: $(GO_FILES)
 	@$(MAKE) --no-print-directory log-$@
 	$(GO) test -coverprofile=coverage.out -covermode=atomic -v ./...
+
+.PHONY: build
+build: ## Build the project
+	@$(MAKE) --no-print-directory log-$@
+	$(GO) build ./...
 
 .PHONY: clean
 clean: ## Clean the workspace including modcache and dist/
@@ -44,7 +46,7 @@ clean: ## Clean the workspace including modcache and dist/
 .PHONY: tools
 tools: ## Install tools needed for development
 	@$(MAKE) --no-print-directory log-$@
-	@go get -u golang.org/x/lint/golint
+	@$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
 
 ###########################################################################
 ## Self-Documenting Makefile Help and logging                            ##

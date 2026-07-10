@@ -1,12 +1,20 @@
 module github.com/gadget-bot/gadget-plugin-how
 
-go 1.16
+go 1.25
 
 require (
 	astuart.co/goq v1.0.0
 	github.com/gadget-bot/gadget v0.2.0
 	github.com/slack-go/slack v0.9.4
-	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
+)
+
+require (
+	github.com/PuerkitoBio/goquery v1.5.0 // indirect
+	github.com/andybalholm/cascadia v1.0.0 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/tools v0.1.5 // indirect
+	gorm.io/gorm v1.21.11 // indirect
 )

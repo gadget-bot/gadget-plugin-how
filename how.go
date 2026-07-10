@@ -49,10 +49,10 @@ func getInstructions(query string) string {
 	if err != nil {
 		return "Sorry, I couldn't query the wikiHow API."
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	var result wikiSearchResult
-	json.NewDecoder(res.Body).Decode(&result)
+	_ = json.NewDecoder(res.Body).Decode(&result)
 
 	pages := result.Query.Search
 
@@ -68,7 +68,7 @@ Attempt:
 		if err != nil {
 			return "Sorry, but I couldn't fetch the wikiHow page."
 		}
-		defer res.Body.Close()
+		defer func() { _ = res.Body.Close() }()
 
 		if res.StatusCode == 200 {
 			var page wikiPage
@@ -113,13 +113,13 @@ func howDoI() *router.MentionRoute {
 	pluginRoute.Pattern = `(?i)^How Do I ([^?]+)\??`
 	pluginRoute.Plugin = func(router router.Router, route router.Route, api slack.Client, ev slackevents.AppMentionEvent, message string) {
 		msgRef := slack.NewRefToMessage(ev.Channel, ev.TimeStamp)
-		api.AddReaction("eyes", msgRef)
+		_ = api.AddReaction("eyes", msgRef)
 
 		re := regexp.MustCompile(pluginRoute.Pattern)
 		results := re.FindStringSubmatch(message)
 		query := results[1]
 
-		api.PostMessage(
+		_, _, _ = api.PostMessage(
 			ev.Channel,
 			slack.MsgOptionText(getInstructions(query), false),
 		)
